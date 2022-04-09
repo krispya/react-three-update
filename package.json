@@ -1,0 +1,46 @@
+{
+  "name": "react-three-update",
+  "version": "0.1.0",
+  "description": "⏱ Unity-like updates for react-three-fiber",
+  "main": "dist/react-three-update.cjs.js",
+  "module": "dist/react-three-update.esm.js",
+  "browser": "dist/react-three-update.umd.js",
+  "scripts": {
+    "build": "rollup -c",
+    "test": "echo tests are missing",
+    "pretest": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krispya/react-three-update.git"
+  },
+  "author": "Kris Baumgartner",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/krispya/react-three-update/issues"
+  },
+  "homepage": "https://github.com/krispya/react-three-update#readme",
+  "peerDependencies": {
+    "@react-three/fiber": ">=8.0",
+    "react": ">=18.0",
+    "three": ">=0.139"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.17.9",
+    "@babel/plugin-transform-runtime": "^7.17.0",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-react": "^7.16.7",
+    "@babel/preset-typescript": "^7.16.7",
+    "@rollup/plugin-babel": "^5.3.1",
+    "@rollup/plugin-node-resolve": "^13.1.3",
+    "jest": "^27.5.1",
+    "rollup": "^2.70.1"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "dependencies": {
+    "zustand": "^3.7.2"
+  }
+}
