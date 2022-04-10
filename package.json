@@ -20,6 +20,9 @@
     "url": "https://github.com/krispya/react-three-update/issues"
   },
   "homepage": "https://github.com/krispya/react-three-update#readme",
+  "dependencies": {
+    "zustand": "^3.7.2"
+  },
   "peerDependencies": {
     "@react-three/fiber": ">=8.0",
     "react": ">=18.0",
@@ -39,8 +42,5 @@
   "files": [
     "dist",
     "src"
-  ],
-  "dependencies": {
-    "zustand": "^3.7.2"
-  }
+  ]
 }
