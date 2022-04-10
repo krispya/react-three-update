@@ -14,7 +14,7 @@ const getBabelOptions = ({ useESModules }, targets) => ({
   plugins: [['@babel/transform-runtime', { regenerator: false, useESModules }]],
   presets: [
     ['@babel/preset-env', { loose: true, modules: false, targets }],
-    ['@babel/preset-react', { runtime: 'automatic' }],
+    '@babel/preset-react',
     '@babel/preset-typescript',
   ],
 });
