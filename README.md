@@ -84,6 +84,6 @@ And has the following properties:
 | `stepSize` | The rate of the fixed update. 1/60 is 60 frames per second. | `number` |
 | `maxSupsteps` | The maximum amount of substeps before the loop bails. Only relevant when the framerate drops below the step size. | `number` |
 | `remainder` | The time remaining after a fixed loop is complete. See [Fix Your Step](https://gafferongames.com/post/fix_your_timestep#the-final-touch). | `number` |
-| `factor` | The interpolation factor. Calculated by `remiander / fixedStep`. See [Fix Your Step](https://gafferongames.com/post/fix_your_timestep#the-final-touch). | `number` |
+| `factor` | The interpolation factor. Calculated by `remainder / fixedStep`. See [Fix Your Step](https://gafferongames.com/post/fix_your_timestep#the-final-touch). | `number` |
 
 This can be useful for manually implementing interpolation for physics or other effects that rely on a fixed update.
