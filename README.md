@@ -66,7 +66,7 @@ There is a single fixed update loop that any callback passed into `useFixedUpdat
 | Prop          | Description                                                                                                       | Type     | Default |
 | ------------- | ----------------------------------------------------------------------------------------------------------------- | -------- | ------- |
 | `stepSize`    | The rate of the fixed update. 1/60 is 60 frames per second.                                                       | `number` | `1/50`  |
-| `maxSupsteps` | The maximum amount of substeps before the loop bails. Only relevant when the framerate drops below the step size. | `number` | `10`    |
+| `maxSubsteps` | The maximum amount of substeps before the loop bails. Only relevant when the framerate drops below the step size. | `number` | `10`    |
 
 👉 Note: These properties can be updated dynamically during runtime.
 
@@ -82,7 +82,7 @@ And has the following properties:
 | Prop | Description | Type |
 | ------------- | ----------------------------------------------------------------------------------------------------------------- | -------- |
 | `stepSize` | The rate of the fixed update. 1/60 is 60 frames per second. | `number` |
-| `maxSupsteps` | The maximum amount of substeps before the loop bails. Only relevant when the framerate drops below the step size. | `number` |
+| `maxSubsteps` | The maximum amount of substeps before the loop bails. Only relevant when the framerate drops below the step size. | `number` |
 | `remainder` | The time remaining after a fixed loop is complete. See [Fix Your Step](https://gafferongames.com/post/fix_your_timestep#the-final-touch). | `number` |
 | `factor` | The interpolation factor. Calculated by `remainder / fixedStep`. See [Fix Your Step](https://gafferongames.com/post/fix_your_timestep#the-final-touch). | `number` |
 
