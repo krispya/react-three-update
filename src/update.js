@@ -54,7 +54,7 @@ const InnerLoop = React.memo(({ stepSize, maxSubsteps, children }) => {
   }, [stepSize, state, threeStore]);
 
   useLayoutEffect(() => {
-    state.setStepSize(maxSubsteps);
+    state.setMaxSubsteps(maxSubsteps);
     threeStore.set(({ fixedState }) => ({
       fixedState: {
         ...fixedState,
