@@ -2,7 +2,7 @@
 
 React hooks for Unity-like updates in [react-three-fiber](https://github.com/pmndrs/react-three-fiber).
 
-```
+```bash
 npm install react-three-update # or yarn add react-three-update
 ```
 
@@ -75,9 +75,7 @@ There is a single fixed update loop that any callback passed into `useFixedUpdat
 A `fixedState` can be accessed from any update hook from the state prop like this.
 
 ```jsx
-useUpdate(({fixedState}) => {
-      const factor = fixedState.factor;
-}
+useUpdate(({fixedState}) => { const factor = fixedState.factor }
 ```
 
 And has the following properties:
