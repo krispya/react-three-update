@@ -87,3 +87,19 @@ And has the following properties:
 | `factor` | The interpolation factor. Calculated by `remainder / stepSize`. See [Fix Your Step](https://gafferongames.com/post/fix_your_timestep#the-final-touch). | `number` |
 
 This can be useful for manually implementing interpolation for physics or other effects that rely on a fixed update.
+
+### Imperative updates with useFixedUpdateApi
+
+You can update the fixed update state imperatively with `useFixedUpdateApi`. Like `useThree`, the hook is reactive and accepts selectors.
+
+```jsx
+import { useFixedUpdateApi } from 'react-three-update'
+
+// For full state.
+function Foo() {
+  const state = useFixedUpdateApi()
+
+// Or with selector.
+function Foo() {
+  const setStepSize = useFixedUpdateApi((state) => state.setStepSize);
+```
