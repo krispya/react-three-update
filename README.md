@@ -29,21 +29,21 @@ function App() {
 }
 
 function Game() {
-  useEarlyUpdate((state, delta) => {
+  useEarlyUpdate((state, delta, fixedState) => {
     // Do early updates here like input polling.
   });
 
-  useFixedUpdate((state, stepSize) => {
+  useFixedUpdate((state, stepSize, fixedState) => {
     // Updates on a fixed step happen here. This is often physics
     // and mutations that need to be deterministic.
     // physics.step(stepSize);
   });
 
-  useUpdate((state, delta) => {
+  useUpdate((state, delta, fixedState) => {
     // The bulk of your business logic will go here.
   });
 
-  useLateUpdate((state, delta) => {
+  useLateUpdate((state, delta, fixedState) => {
     // Any updates you want to occur right before rendering.
     // For example having a camera follow a character who might
     // be moved by input, physics or other interactions.
@@ -72,10 +72,10 @@ There is a single fixed update loop that any callback passed into `useFixedUpdat
 
 ### Accessing the fixedState
 
-A `fixedState` can be accessed from any update hook from the state prop like this.
+A `fixedState` can be accessed from any update hook.
 
 ```jsx
-useUpdate(({fixedState}) => { const factor = fixedState.factor }
+useUpdate((state, delta, fixedState) => { const factor = fixedState.factor }
 ```
 
 And has the following properties:
