@@ -27,3 +27,5 @@ export const createStore = (stepSize, maxSubsteps) => () =>
       setMaxSubsteps: (v) => set({ maxSubsteps: v }),
     })),
   );
+
+export const useFixedUpdateApi = (selector) => useStore(selector);
