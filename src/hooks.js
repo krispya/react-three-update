@@ -1,17 +1,18 @@
-import { useFrame } from "@react-three/fiber";
-import { useLayoutEffect, useRef } from "react";
-import { useStoreApi } from "./store";
+import { useFrame } from '@react-three/fiber';
+import { useLayoutEffect, useRef } from 'react';
+import { useStoreApi } from './store';
 
 export const stage = {
   earlyUpdate: -400,
   fixedUpdate: -300,
   update: -200,
-  lateUpdate: -100
+  lateUpdate: -100,
 };
 
 export function useEarlyUpdate(callback = null) {
+  const store = useStoreApi();
   useFrame((state, delta) => {
-    callback && callback(state, delta);
+    callback && callback(state, delta, store.getState());
   }, stage.earlyUpdate);
 }
 
@@ -22,13 +23,15 @@ export function useFixedUpdate(callback = null) {
 }
 
 export function useUpdate(callback = null) {
+  const store = useStoreApi();
   useFrame((state, delta) => {
-    callback && callback(state, delta);
+    callback && callback(state, delta, store.getState());
   }, stage.update);
 }
 
 export function useLateUpdate(callback = null) {
+  const store = useStoreApi();
   useFrame((state, delta) => {
-    callback && callback(state, delta);
+    callback && callback(state, delta, store.getState());
   }, stage.lateUpdate);
 }
