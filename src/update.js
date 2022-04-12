@@ -1,69 +1,39 @@
-import React, { useLayoutEffect } from 'react';
-import { Provider, createStore, useStoreApi } from './store';
-import { useStore as useThreeStore } from '@react-three/fiber';
+import React, { useEffect } from 'react';
+import { createStore, context, useStore } from './store';
 import { useFixedLoop } from './loop';
 
-export function Update({ stepSize = 1 / 50, maxSubsteps = 10, children }) {
+export const Update = React.memo(({ stepSize = 1 / 50, maxSubsteps = 10, children }) => {
+  const store = createStore(stepSize, maxSubsteps);
   return (
-    <Provider createStore={createStore(stepSize, maxSubsteps)}>
-      <InnerLoop stepSize={stepSize} maxSubsteps={maxSubsteps}>
-        {children}
-      </InnerLoop>
-    </Provider>
+    <context.Provider value={store}>
+      <FixedLoop>{children}</FixedLoop>
+    </context.Provider>
   );
-}
+});
 
-const InnerLoop = React.memo(({ stepSize, maxSubsteps, children }) => {
-  const store = useStoreApi();
-  const state = store.getState();
-  const threeStore = useThreeStore().getState();
+function FixedLoop({ children }) {
+  const store = useStore().getState();
 
-  useLayoutEffect(() => {
-    threeStore.set(() => ({
-      fixedState: {
-        ...state,
-      },
-    }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useLayoutEffect(
+  useEffect(
     () =>
       store.subscribe(
         (state) => state.subscribers,
         (subscribers) => {
-          threeStore.set(({ fixedState }) => ({
-            fixedState: {
-              ...fixedState,
-              subscribers,
-            },
-          }));
+          console.log(subscribers);
         },
       ),
-    [store, threeStore],
+    [store],
   );
 
-  useLayoutEffect(() => {
-    state.setStepSize(stepSize);
-    threeStore.set(({ fixedState }) => ({
-      fixedState: {
-        ...fixedState,
-        stepSize: stepSize,
-      },
-    }));
-  }, [stepSize, state, threeStore]);
-
-  useLayoutEffect(() => {
-    state.setMaxSubsteps(maxSubsteps);
-    threeStore.set(({ fixedState }) => ({
-      fixedState: {
-        ...fixedState,
-        maxSubsteps: maxSubsteps,
-      },
-    }));
-  }, [maxSubsteps, state, threeStore]);
+  useEffect(
+    () =>
+      store.subscribe(
+        (state) => state.factor,
+        (factor) => console.log(factor),
+      ),
+    [store],
+  );
 
   useFixedLoop();
-
   return children;
-});
+}

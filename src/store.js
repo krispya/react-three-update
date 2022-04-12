@@ -1,11 +1,19 @@
-import createContext from 'zustand/context';
 import { subscribeWithSelector } from 'zustand/middleware';
 import create from 'zustand';
+import { useContext, createContext } from 'react';
 
-export const { Provider, useStore, useStoreApi } = createContext();
-export const createStore = (stepSize, maxSubsteps) => () =>
+export const context = createContext();
+
+export function useStore() {
+  const store = useContext(context);
+  if (!store) throw `react-three-update hooks can only be used within the Update component!`;
+  return store;
+}
+
+export const createStore = (stepSize, maxSubsteps) =>
   create(
     subscribeWithSelector((set) => ({
+      set,
       stepSize: stepSize,
       maxSubsteps: maxSubsteps,
       factor: 0,
