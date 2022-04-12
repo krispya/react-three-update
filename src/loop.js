@@ -1,6 +1,5 @@
 import { useFrame } from '@react-three/fiber';
 import { stage } from './hooks';
-import { useStore } from './store';
 
 let subscribers;
 let subscription;
@@ -9,12 +8,11 @@ let maxSubsteps;
 
 export function useFixedLoop() {
   let accumulator = 0;
-  const store = useStore().getState();
 
-  useFrame((state, delta, frame) => {
-    stepSize = store.stepSize;
-    subscribers = store.subscribers;
-    maxSubsteps = store.maxSubsteps;
+  useFrame((state, delta) => {
+    stepSize = state.fixedState.stepSize;
+    subscribers = state.fixedState.subscribers;
+    maxSubsteps = state.fixedState.maxSubsteps;
 
     accumulator += delta;
     const initialTime = performance.now();
@@ -26,7 +24,7 @@ export function useFixedLoop() {
 
       for (let i = 0; i < subscribers.length; i++) {
         subscription = subscribers[i];
-        subscription.current(state, stepSize, frame, store);
+        subscription.current(state, stepSize);
       }
 
       if (performance.now() - initialTime > stepSize * 1000) {
@@ -40,9 +38,12 @@ export function useFixedLoop() {
     accumulator = accumulator % stepSize;
 
     const factor = accumulator / stepSize;
-    store.set(() => ({
-      factor: factor,
-      remainder: accumulator,
+    state.set((state) => ({
+      fixedState: {
+        ...state.fixedState,
+        factor: factor,
+        remainder: accumulator,
+      },
     }));
   }, stage.fixedUpdate);
 }

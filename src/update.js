@@ -1,39 +1,69 @@
-import React, { useEffect } from 'react';
-import { createStore, context, useStore } from './store';
+import React, { useLayoutEffect } from 'react';
+import { Provider, createStore, useStoreApi } from './store';
+import { useStore as useThreeStore } from '@react-three/fiber';
 import { useFixedLoop } from './loop';
 
-export const Update = React.memo(({ stepSize = 1 / 50, maxSubsteps = 10, children }) => {
-  const store = createStore(stepSize, maxSubsteps);
+export function Update({ stepSize = 1 / 50, maxSubsteps = 10, children }) {
   return (
-    <context.Provider value={store}>
-      <FixedLoop>{children}</FixedLoop>
-    </context.Provider>
+    <Provider createStore={createStore(stepSize, maxSubsteps)}>
+      <InnerLoop stepSize={stepSize} maxSubsteps={maxSubsteps}>
+        {children}
+      </InnerLoop>
+    </Provider>
   );
-});
+}
 
-function FixedLoop({ children }) {
-  const store = useStore().getState();
+const InnerLoop = React.memo(({ stepSize, maxSubsteps, children }) => {
+  const store = useStoreApi();
+  const state = store.getState();
+  const threeStore = useThreeStore().getState();
 
-  useEffect(
+  useLayoutEffect(() => {
+    threeStore.set(() => ({
+      fixedState: {
+        ...state,
+      },
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useLayoutEffect(
     () =>
       store.subscribe(
         (state) => state.subscribers,
         (subscribers) => {
-          console.log(subscribers);
+          threeStore.set(({ fixedState }) => ({
+            fixedState: {
+              ...fixedState,
+              subscribers,
+            },
+          }));
         },
       ),
-    [store],
+    [store, threeStore],
   );
 
-  useEffect(
-    () =>
-      store.subscribe(
-        (state) => state.factor,
-        (factor) => console.log(factor),
-      ),
-    [store],
-  );
+  useLayoutEffect(() => {
+    state.setStepSize(stepSize);
+    threeStore.set(({ fixedState }) => ({
+      fixedState: {
+        ...fixedState,
+        stepSize: stepSize,
+      },
+    }));
+  }, [stepSize, state, threeStore]);
+
+  useLayoutEffect(() => {
+    state.setMaxSubsteps(maxSubsteps);
+    threeStore.set(({ fixedState }) => ({
+      fixedState: {
+        ...fixedState,
+        maxSubsteps: maxSubsteps,
+      },
+    }));
+  }, [maxSubsteps, state, threeStore]);
 
   useFixedLoop();
+
   return children;
-}
+});
