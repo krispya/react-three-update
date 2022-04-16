@@ -17,7 +17,7 @@ export type FixedUpdateState = {
   remainder: number;
   subscribers: Subscription[];
   subscribe: (ref: Subscription) => () => void;
-  setfixedStep: (v: number) => void;
+  setFixedStep: (v: number) => void;
   setMaxSubsteps: (v: number) => void;
 };
 
@@ -49,7 +49,7 @@ export const createStore = (fixedStep: number, maxSubsteps: number) => () =>
           }));
         };
       },
-      setfixedStep: (v: number) => set({ fixedStep: v }),
+      setFixedStep: (v: number) => set({ fixedStep: v }),
       setMaxSubsteps: (v: number) => set({ maxSubsteps: v }),
     })),
   );

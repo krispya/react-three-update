@@ -101,5 +101,5 @@ function Foo() {
 
 // Or with selector.
 function Foo() {
-  const setfixedStep = useFixedUpdateApi((state) => state.setfixedStep);
+  const setFixedStep = useFixedUpdateApi((state) => state.setFixedStep);
 ```
