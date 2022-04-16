@@ -4,7 +4,7 @@ import { FixedUpdateState, Subscription, useStoreApi } from './store';
 
 let subscribers: Subscription[];
 let subscription: Subscription;
-let stepSize: number;
+let fixedStep: number;
 let maxSubsteps: number;
 
 export function useFixedLoop() {
@@ -13,7 +13,7 @@ export function useFixedLoop() {
 
   useFrame((state, delta) => {
     const storeState = store.getState() as FixedUpdateState;
-    stepSize = storeState.stepSize;
+    fixedStep = storeState.fixedStep;
     subscribers = storeState.subscribers;
     maxSubsteps = storeState.maxSubsteps;
 
@@ -21,16 +21,16 @@ export function useFixedLoop() {
     const initialTime = performance.now();
     let substeps = 0;
 
-    while (accumulator >= stepSize && substeps < maxSubsteps) {
-      accumulator -= stepSize;
+    while (accumulator >= fixedStep && substeps < maxSubsteps) {
+      accumulator -= fixedStep;
       substeps++;
 
       for (let i = 0; i < subscribers.length; i++) {
         subscription = subscribers[i];
-        subscription.current(state, stepSize, storeState);
+        subscription.current(state, fixedStep, storeState);
       }
 
-      if (performance.now() - initialTime > stepSize * 1000) {
+      if (performance.now() - initialTime > fixedStep * 1000) {
         // The framerate is not interactive anymore. Better bail out.
         break;
       }
@@ -38,9 +38,9 @@ export function useFixedLoop() {
 
     // If the accumulator is bigger than delta, set it to 1.
     // It should never be bigger than delta unless something went wrong.
-    accumulator = accumulator % stepSize;
+    accumulator = accumulator % fixedStep;
 
-    const factor = accumulator / stepSize;
+    const factor = accumulator / fixedStep;
     store.setState(() => ({
       factor: factor,
       remainder: accumulator,

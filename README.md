@@ -33,10 +33,10 @@ function Game() {
     // Do early updates here like input polling.
   });
 
-  useFixedUpdate((state, stepSize, fixedState) => {
+  useFixedUpdate((state, fixedStep, fixedState) => {
     // Updates on a fixed step happen here. This is often physics
     // and mutations that need to be deterministic.
-    // physics.step(stepSize);
+    // physics.step(fixedStep);
   });
 
   useUpdate((state, delta, fixedState) => {
@@ -57,15 +57,15 @@ function Game() {
 
 ## More about `useFixedUpdate`
 
-There is a single fixed update loop that any callback passed into `useFixedUpdate` subscribes to, like `useFrame` in react-three-fiber. You can set the `stepSize` and `maxSubsteps` on `Update`.
+There is a single fixed update loop that any callback passed into `useFixedUpdate` subscribes to, like `useFrame` in react-three-fiber. You can set the `fixedStep` and `maxSubsteps` on `Update`.
 
 ```jsx
-<Update stepSize={1 / 60} maxSubsteps={8}></Update>
+<Update fixedStep={1 / 60} maxSubsteps={8}></Update>
 ```
 
 | Prop          | Description                                                                                                       | Type     | Default |
 | ------------- | ----------------------------------------------------------------------------------------------------------------- | -------- | ------- |
-| `stepSize`    | The rate of the fixed update. 1/60 is 60 frames per second.                                                       | `number` | `1/50`  |
+| `fixedStep`   | The rate of the fixed update. 1/60 is 60 frames per second.                                                       | `number` | `1/50`  |
 | `maxSubsteps` | The maximum amount of substeps before the loop bails. Only relevant when the framerate drops below the step size. | `number` | `10`    |
 
 👉 Note: These properties can be updated dynamically during runtime.
@@ -81,10 +81,10 @@ useUpdate((state, delta, fixedState) => { const factor = fixedState.factor }
 And has the following properties:
 | Prop | Description | Type |
 | ------------- | ----------------------------------------------------------------------------------------------------------------- | -------- |
-| `stepSize` | The rate of the fixed update. 1/60 is 60 frames per second. | `number` |
+| `fixedStep` | The rate of the fixed update. 1/60 is 60 frames per second. | `number` |
 | `maxSubsteps` | The maximum amount of substeps before the loop bails. Only relevant when the framerate drops below the step size. | `number` |
 | `remainder` | The time remaining after a fixed loop is complete. See [Fix Your Step](https://gafferongames.com/post/fix_your_timestep#the-final-touch). | `number` |
-| `factor` | The interpolation factor. Calculated by `remainder / stepSize`. See [Fix Your Step](https://gafferongames.com/post/fix_your_timestep#the-final-touch). | `number` |
+| `factor` | The interpolation factor. Calculated by `remainder / fixedStep`. See [Fix Your Step](https://gafferongames.com/post/fix_your_timestep#the-final-touch). | `number` |
 
 This can be useful for manually implementing interpolation for physics or other effects that rely on a fixed update.
 
@@ -101,5 +101,5 @@ function Foo() {
 
 // Or with selector.
 function Foo() {
-  const setStepSize = useFixedUpdateApi((state) => state.setStepSize);
+  const setfixedStep = useFixedUpdateApi((state) => state.setfixedStep);
 ```

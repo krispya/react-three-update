@@ -5,26 +5,26 @@ import { RootState } from '@react-three/fiber';
 import { MutableRefObject } from 'react';
 
 export interface FixedCallback {
-  (state: RootState, stepSize: number, fixedState: FixedUpdateState): void;
+  (state: RootState, fixedStep: number, fixedState: FixedUpdateState): void;
 }
 
 export type Subscription = MutableRefObject<FixedCallback>;
 
 export type FixedUpdateState = {
-  stepSize: number;
+  fixedStep: number;
   maxSubsteps: number;
   factor: number;
   remainder: number;
   subscribers: Subscription[];
   subscribe: (ref: Subscription) => () => void;
-  setStepSize: (v: number) => void;
+  setfixedStep: (v: number) => void;
   setMaxSubsteps: (v: number) => void;
 };
 
 type FixedUpdateSelector = StateSelector<FixedUpdateState, Partial<FixedUpdateState>>;
 
 export const { Provider, useStore, useStoreApi } = createContext<FixedUpdateState>();
-export const createStore = (stepSize: number, maxSubsteps: number) => () =>
+export const createStore = (fixedStep: number, maxSubsteps: number) => () =>
   create<
     FixedUpdateState,
     SetState<FixedUpdateState>,
@@ -32,7 +32,7 @@ export const createStore = (stepSize: number, maxSubsteps: number) => () =>
     Mutate<StoreApi<FixedUpdateState>, [['zustand/subscribeWithSelector', never]]>
   >(
     subscribeWithSelector((set) => ({
-      stepSize: stepSize,
+      fixedStep: fixedStep,
       maxSubsteps: maxSubsteps,
       factor: 0,
       remainder: 0,
@@ -49,7 +49,7 @@ export const createStore = (stepSize: number, maxSubsteps: number) => () =>
           }));
         };
       },
-      setStepSize: (v: number) => set({ stepSize: v }),
+      setfixedStep: (v: number) => set({ fixedStep: v }),
       setMaxSubsteps: (v: number) => set({ maxSubsteps: v }),
     })),
   );
