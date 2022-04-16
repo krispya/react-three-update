@@ -1,5 +1,5 @@
 import React from 'react';
-import { Provider, createStore, useStoreApi } from './store';
+import { createUpdateStore, StoreContext } from './store';
 import { useFixedLoop } from './loop';
 
 type UpdateProps = {
@@ -9,11 +9,12 @@ type UpdateProps = {
 };
 
 export const Update = React.memo(({ fixedStep = 1 / 50, maxSubsteps = 10, children }: UpdateProps) => {
+  const store = createUpdateStore(fixedStep, maxSubsteps);
   return (
-    <Provider createStore={createStore(fixedStep, maxSubsteps)}>
+    <StoreContext.Provider value={store}>
       <Configure fixedStep={fixedStep} maxSubsteps={maxSubsteps} />
       <FixedLoop>{children}</FixedLoop>
-    </Provider>
+    </StoreContext.Provider>
   );
 });
 

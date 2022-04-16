@@ -1,8 +1,7 @@
-import createContext from 'zustand/context';
 import { subscribeWithSelector } from 'zustand/middleware';
-import create, { GetState, Mutate, SetState, StateSelector, StoreApi } from 'zustand';
+import create, { GetState, Mutate, SetState, StateSelector, StoreApi, createStore } from 'zustand';
 import { RootState } from '@react-three/fiber';
-import { MutableRefObject } from 'react';
+import { createContext, MutableRefObject, useContext } from 'react';
 
 export interface FixedCallback {
   (state: RootState, fixedStep: number, fixedState: FixedUpdateState): void;
@@ -23,35 +22,47 @@ export type FixedUpdateState = {
 
 type FixedUpdateSelector = StateSelector<FixedUpdateState, Partial<FixedUpdateState>>;
 
-export const { Provider, useStore, useStoreApi } = createContext<FixedUpdateState>();
-export const createStore = (fixedStep: number, maxSubsteps: number) => () =>
-  create<
-    FixedUpdateState,
-    SetState<FixedUpdateState>,
-    GetState<FixedUpdateState>,
-    Mutate<StoreApi<FixedUpdateState>, [['zustand/subscribeWithSelector', never]]>
-  >(
-    subscribeWithSelector((set) => ({
-      fixedStep: fixedStep,
-      maxSubsteps: maxSubsteps,
-      factor: 0,
-      remainder: 0,
-      subscribers: [],
-      subscribe: (ref: Subscription) => {
-        set((state) => ({
-          ...state,
-          subscribers: [...state.subscribers, ref],
-        }));
-        return () => {
+export const createUpdateStore = createStore(
+  (fixedStep: number, maxSubsteps: number) => () =>
+    create<
+      FixedUpdateState,
+      SetState<FixedUpdateState>,
+      GetState<FixedUpdateState>,
+      Mutate<StoreApi<FixedUpdateState>, [['zustand/subscribeWithSelector', never]]>
+    >(
+      subscribeWithSelector((set) => ({
+        fixedStep: fixedStep,
+        maxSubsteps: maxSubsteps,
+        factor: 0,
+        remainder: 0,
+        subscribers: [],
+        subscribe: (ref: Subscription) => {
           set((state) => ({
             ...state,
-            subscribers: state.subscribers.filter((s) => s !== ref),
+            subscribers: [...state.subscribers, ref],
           }));
-        };
-      },
-      setFixedStep: (v: number) => set({ fixedStep: v }),
-      setMaxSubsteps: (v: number) => set({ maxSubsteps: v }),
-    })),
-  );
+          return () => {
+            set((state) => ({
+              ...state,
+              subscribers: state.subscribers.filter((s) => s !== ref),
+            }));
+          };
+        },
+        setFixedStep: (v: number) => set({ fixedStep: v }),
+        setMaxSubsteps: (v: number) => set({ maxSubsteps: v }),
+      })),
+    ),
+);
 
-export const useFixedUpdateApi = (selector: FixedUpdateSelector) => useStore(selector);
+export const StoreContext = createContext<FixedUpdateState>(null);
+
+export const useUpdateContext = () => {
+  const context = useContext(StoreContext);
+  if (!context)
+    throw new Error(
+      'Update context not found. react-three-update and components can only be used within an Update provider',
+    );
+  return context;
+};
+
+// export const useFixedUpdateApi = (selector: FixedUpdateSelector) => useStore(selector);
