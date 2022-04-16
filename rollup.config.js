@@ -22,7 +22,7 @@ const getBabelOptions = ({ useESModules }, targets) => ({
 export default [
   {
     external,
-    input: 'src/index.js',
+    input: 'src/index.ts',
     output: {
       name: 'react-three-fiber',
       file: pkg.browser,
@@ -35,7 +35,7 @@ export default [
   },
   {
     external,
-    input: 'src/index.js',
+    input: 'src/index.ts',
     output: [
       { file: pkg.main, format: 'cjs' },
       { file: pkg.module, format: 'es' },

@@ -1,18 +1,18 @@
 import { useFrame } from '@react-three/fiber';
 import { stage } from './hooks';
-import { useStoreApi } from './store';
+import { FixedUpdateState, Subscription, useStoreApi } from './store';
 
-let subscribers;
-let subscription;
-let stepSize;
-let maxSubsteps;
+let subscribers: Subscription[];
+let subscription: Subscription;
+let stepSize: number;
+let maxSubsteps: number;
 
 export function useFixedLoop() {
   let accumulator = 0;
   const store = useStoreApi();
 
   useFrame((state, delta) => {
-    const storeState = store.getState();
+    const storeState = store.getState() as FixedUpdateState;
     stepSize = storeState.stepSize;
     subscribers = storeState.subscribers;
     maxSubsteps = storeState.maxSubsteps;

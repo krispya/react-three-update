@@ -1,6 +1,6 @@
 import { useFrame } from '@react-three/fiber';
 import { useLayoutEffect, useRef } from 'react';
-import { useStoreApi } from './store';
+import { FixedUpdateState, FixedCallback, useStoreApi } from './store';
 
 export const stage = {
   earlyUpdate: -400,
@@ -9,27 +9,28 @@ export const stage = {
   lateUpdate: -100,
 };
 
-export function useEarlyUpdate(callback = null) {
+export function useEarlyUpdate(callback: FixedCallback) {
   const store = useStoreApi();
   useFrame((state, delta) => {
     callback && callback(state, delta, store.getState());
   }, stage.earlyUpdate);
 }
 
-export function useFixedUpdate(callback = null) {
-  const subscribe = useStoreApi().getState().subscribe;
-  const ref = useRef(callback);
+export function useFixedUpdate(callback) {
+  const storeState = useStoreApi().getState();
+  const subscribe = storeState.subscribe;
+  const ref = useRef<FixedCallback>(callback);
   useLayoutEffect(() => subscribe(ref), [subscribe]);
 }
 
-export function useUpdate(callback = null) {
+export function useUpdate(callback: FixedCallback) {
   const store = useStoreApi();
   useFrame((state, delta) => {
     callback && callback(state, delta, store.getState());
   }, stage.update);
 }
 
-export function useLateUpdate(callback = null) {
+export function useLateUpdate(callback: FixedCallback) {
   const store = useStoreApi();
   useFrame((state, delta) => {
     callback && callback(state, delta, store.getState());
