@@ -3,9 +3,14 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import create, { GetState, Mutate, SetState, StateSelector, StoreApi } from 'zustand';
 import { RootState } from '@react-three/fiber';
 import { MutableRefObject } from 'react';
+import * as THREE from 'three';
+
+export interface UpdateCallback {
+  (state: RootState, delta: number, fixedState: FixedUpdateState, frame?: THREE.XRFrame): void;
+}
 
 export interface FixedCallback {
-  (state: RootState, fixedStep: number, fixedState: FixedUpdateState): void;
+  (state: RootState, fixedStep: number, fixedState: FixedUpdateState, frame?: THREE.XRFrame): void;
 }
 
 export type Subscription = MutableRefObject<FixedCallback>;
