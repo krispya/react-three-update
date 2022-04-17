@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/krispya/react-three-update#readme",
   "dependencies": {
-    "zustand": "^4.0.0-beta.3"
+    "zustand": "https://pkg.csb.dev/pmndrs/zustand/commit/b7e47310/zustand"
   },
   "peerDependencies": {
     "@react-three/fiber": ">=8.0",

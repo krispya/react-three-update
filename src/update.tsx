@@ -1,6 +1,7 @@
 import React from 'react';
-import { createUpdateStore, StoreContext } from './store';
+import { createUpdateStore, StoreContext, useUpdateContext } from './store';
 import { useFixedLoop } from './loop';
+import { useStore } from 'zustand';
 
 type UpdateProps = {
   fixedStep?: number;
@@ -19,7 +20,7 @@ export const Update = React.memo(({ fixedStep = 1 / 50, maxSubsteps = 10, childr
 });
 
 function Configure({ fixedStep, maxSubsteps }: { fixedStep: number; maxSubsteps: number }) {
-  const store = useStoreApi();
+  const store = useUpdateContext();
   store.setState(() => ({
     fixedStep: fixedStep,
     maxSubsteps: maxSubsteps,
