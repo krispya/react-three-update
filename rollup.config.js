@@ -23,19 +23,6 @@ export default [
   {
     external,
     input: 'src/index.ts',
-    output: {
-      name: 'react-three-fiber',
-      file: pkg.browser,
-      format: 'umd',
-    },
-    plugins: [
-      pluginNodeResolve({ extensions }),
-      babel(getBabelOptions({ useESModules: true }, '>1%, not dead, not ie 11, not op_mini all')),
-    ],
-  },
-  {
-    external,
-    input: 'src/index.ts',
     output: [
       { file: pkg.main, format: 'cjs' },
       { file: pkg.module, format: 'es' },

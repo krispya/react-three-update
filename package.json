@@ -4,7 +4,6 @@
   "description": "⏱ Unity-like updates for react-three-fiber",
   "main": "dist/react-three-update.cjs.js",
   "module": "dist/react-three-update.esm.js",
-  "browser": "dist/react-three-update.umd.js",
   "scripts": {
     "build": "rollup -c",
     "test": "echo tests are missing",
@@ -36,9 +35,10 @@
     "@babel/preset-typescript": "^7.16.7",
     "@rollup/plugin-babel": "^5.3.1",
     "@rollup/plugin-node-resolve": "^13.1.3",
+    "@types/three": "^0.139.0",
     "jest": "^27.5.1",
     "rollup": "^2.70.1",
-    "@types/three": "^0.139.0"
+    "typescript": "^4.6.4"
   },
   "files": [
     "dist",

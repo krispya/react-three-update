@@ -1,12 +1,16 @@
 import React from 'react';
 import { Provider, createStore, useStoreApi } from './store';
-import { useFixedLoop } from './loop';
+import { useFixedLoop } from './fixed-loop';
 
 type UpdateProps = {
   fixedStep?: number;
   maxSubsteps?: number;
   children: React.ReactNode;
 };
+
+interface FixedLoopProps {
+  children: React.ReactNode;
+}
 
 export const Update = React.memo(({ fixedStep = 1 / 50, maxSubsteps = 10, children }: UpdateProps) => {
   return (
@@ -26,7 +30,7 @@ function Configure({ fixedStep, maxSubsteps }: { fixedStep: number; maxSubsteps:
   return null;
 }
 
-function FixedLoop({ children }) {
+function FixedLoop({ children }: FixedLoopProps) {
   useFixedLoop();
-  return children;
+  return <>{children}</>;
 }
