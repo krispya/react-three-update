@@ -4,8 +4,9 @@
   "description": "⏱ Unity-like updates for react-three-fiber",
   "main": "dist/react-three-update.cjs.js",
   "module": "dist/react-three-update.esm.js",
+  "types": "dist/types/index.d.ts",
   "scripts": {
-    "build": "rollup -c",
+    "build": "tsc && rollup -c",
     "test": "echo tests are missing",
     "pretest": "npm run build"
   },

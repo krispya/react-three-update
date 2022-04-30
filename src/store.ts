@@ -30,13 +30,8 @@ type FixedUpdateSelector = StateSelector<FixedUpdateState, Partial<FixedUpdateSt
 
 export const { Provider, useStore, useStoreApi } = createContext<FixedUpdateState>();
 export const createStore = (fixedStep: number, maxSubsteps: number) => () =>
-  create<
-    FixedUpdateState,
-    SetState<FixedUpdateState>,
-    GetState<FixedUpdateState>,
-    Mutate<StoreApi<FixedUpdateState>, [['zustand/subscribeWithSelector', never]]>
-  >(
-    subscribeWithSelector((set) => ({
+  create(
+    subscribeWithSelector<FixedUpdateState>((set) => ({
       fixedStep: fixedStep,
       maxSubsteps: maxSubsteps,
       factor: 0,
