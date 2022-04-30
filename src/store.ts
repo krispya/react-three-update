@@ -41,7 +41,7 @@ export const createStore = (fixedStep: number, maxSubsteps: number) => () =>
       maxSubsteps: maxSubsteps,
       factor: 0,
       remainder: 0,
-      subscribers: [],
+      subscribers: [] as Subscription[],
       subscribe: (ref: Subscription) => {
         set((state) => ({
           ...state,
