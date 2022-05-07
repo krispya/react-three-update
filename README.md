@@ -6,9 +6,9 @@ React hooks for Unity-like updates in [react-three-fiber](https://github.com/pmn
 npm install react-three-update # or yarn add react-three-update
 ```
 
-Unity provides a [strict ordering of events](https://docs.unity3d.com/Manual/ExecutionOrder.html) that many game developers are familiar with. Meanwhile, react-three-fiber only has `useFrame` and lacks a fixed update method. react-three-update solves this by extending `useFrame` to have a strict sequence of update hooks along with a fixed frame loop. The updates are executed in the following order: `useEarlyUpdate`, `useFixedUpdate`, `useUpdate`, `useLateUpdate` and then rendering.
+Unity provides a [strict ordering of events](https://docs.unity3d.com/Manual/ExecutionOrder.html) that many game developers are familiar with. Meanwhile, react-three-fiber only has `useFrame` and lacks a fixed update method. react-three-update solves this by extending `useFrame` to have a strict sequence of update hooks along with a fixed frame loop. The updates are executed in the following order: `useEarlyUpdate`, `useFixedUpdate`, `useUpdate`, `useLateUpdate` and then `useRenderUpdate`.
 
-👉 Note: By default `useFrame` will execute after `useLateUpdate` and before rendering. This means most react-three-fiber and Drei components will occur after `useLateUpdate`.
+👉 Note: The default `useFrame` priority aligns with the update stage (priority of 0). This means Drei components will generally occur during the update stage along with most other business logic.
 
 ## How it works
 
@@ -88,18 +88,18 @@ And has the following properties:
 
 This can be useful for manually implementing interpolation for physics or other effects that rely on a fixed update.
 
-### Imperative updates with useFixedUpdateApi
+### Imperative updates with useUpdateApi
 
-You can update the fixed update state imperatively with `useFixedUpdateApi`. Like `useThree`, the hook is reactive and accepts selectors.
+You can update the fixed update state imperatively with `useUpdateApi`. Like `useThree`, the hook is reactive and accepts selectors.
 
 ```jsx
-import { useFixedUpdateApi } from 'react-three-update'
+import { useUpdateApi } from 'react-three-update'
 
 // For full state.
 function Foo() {
-  const state = useFixedUpdateApi()
+  const state = useUpdateApi()
 
 // Or with selector.
 function Foo() {
-  const setFixedStep = useFixedUpdateApi((state) => state.setFixedStep);
+  const setFixedStep = useUpdateApi((state) => state.fixed.setFixedStep);
 ```
