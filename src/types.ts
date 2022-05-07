@@ -2,8 +2,14 @@ import { RootState } from '@react-three/fiber';
 import { MutableRefObject } from 'react';
 import { StateSelector } from 'zustand';
 
+export type FrameloopOverload = {
+  mode?: 'always' | 'demand' | 'never';
+  manual?: boolean;
+};
+export type FrameLoop = 'always' | 'demand' | 'never';
+
 export type UpdateProps = {
-  autoRender?: boolean;
+  frameloop?: FrameloopOverload;
   fixedStep?: number;
   maxSubsteps?: number;
   children: React.ReactElement;
@@ -20,7 +26,7 @@ export interface FixedCallback {
 }
 
 export interface RenderCallback {
-  (state: RootState, delta: number, renderState: RenderUpdateState, frame?: THREE.XRFrame): void;
+  (state: RootState, delta: number, renderState: RenderState, frame?: THREE.XRFrame): void;
 }
 
 export type FixedSubscription = MutableRefObject<FixedCallback>;
@@ -41,16 +47,16 @@ export type FixedUpdateSlice = {
   fixed: FixedUpdateState;
 };
 
-export type RenderUpdateState = {
-  autoRender: boolean;
-  setAutoRender: (v: boolean) => void;
+export type RenderState = {
+  frameloop?: FrameloopOverload;
+  setFrameloop: (v?: FrameloopOverload) => void;
   subscribers: RenderSubscription[];
   subscribe: (ref: RenderSubscription) => () => void;
 };
 
-export type RenderUpdateSlice = {
-  render: RenderUpdateState;
+export type RenderSlice = {
+  render: RenderState;
 };
 
-export type UpdateState = FixedUpdateSlice & RenderUpdateSlice;
+export type UpdateState = FixedUpdateSlice & RenderSlice;
 export type UpdateSelector = StateSelector<UpdateState, Partial<UpdateState>>;

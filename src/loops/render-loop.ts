@@ -10,14 +10,11 @@ export function useRenderLoop() {
 
   useFrame((state, delta) => {
     const renderState = store.getState().render;
-    const { subscribers, autoRender } = renderState;
-    const { gl, scene, camera } = state;
+    const { subscribers } = renderState;
 
     for (let i = 0; i < subscribers.length; i++) {
       subscription = subscribers[i];
       subscription.current(state, delta, renderState);
     }
-
-    if (autoRender) gl.render(scene, camera);
   }, stage.render);
 }
