@@ -16,7 +16,7 @@ Wrap your game in the Update component and then subscribe your business logic to
 
 ```jsx
 import { Canvas } from '@react-three/fiber';
-import { Update, useEarlyUpdate, useFixedUpdate, useUpdate, useLateUpdate } from 'react-three-update';
+import { Update, useEarlyUpdate, useFixedUpdate, useUpdate, useLateUpdate, useRenderUpdate } from 'react-three-update';
 
 function App() {
   return (
@@ -47,6 +47,11 @@ function Game() {
     // Any updates you want to occur right before rendering.
     // For example having a camera follow a character who might
     // be moved by input, physics or other interactions.
+  });
+
+  useRenderUpdate((state, delta, renderState) => {
+    // These updates happen right before the node graph is rendered.
+    // You would want to do matrix updates or postprocessing here.
   });
 
   return {
@@ -88,7 +93,7 @@ And has the following properties:
 
 This can be useful for manually implementing interpolation for physics or other effects that rely on a fixed update.
 
-### Imperative updates with useUpdateApi
+## Imperative updates with useUpdateApi
 
 You can update the fixed update state imperatively with `useUpdateApi`. Like `useThree`, the hook is reactive and accepts selectors.
 
