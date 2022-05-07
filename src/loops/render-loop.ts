@@ -10,11 +10,12 @@ export function useRenderLoop() {
 
   useFrame((state, delta) => {
     const renderState = store.getState().render;
+    const fixedState = store.getState().fixed;
     const { subscribers } = renderState;
 
     for (let i = 0; i < subscribers.length; i++) {
       subscription = subscribers[i];
-      subscription.current(state, delta, renderState);
+      subscription.current(state, delta, fixedState);
     }
   }, stage.render);
 }

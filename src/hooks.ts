@@ -3,20 +3,19 @@ import { useLayoutEffect, useRef } from 'react';
 import { FixedCallback, RenderCallback, UpdateCallback } from './types';
 import { useStoreApi } from './store';
 
-export const stage = {
-  earlyUpdate: -300,
-  fixedUpdate: -200,
-  lateFixedUpdate: -100,
-  update: 0,
-  lateUpdate: 100,
-  render: 200,
-};
+export enum stage {
+  early = -200,
+  fixed = -100,
+  default = 0,
+  late = 100,
+  render = 200,
+}
 
 export function useEarlyUpdate(callback: UpdateCallback) {
   const store = useStoreApi();
   useFrame((state, delta, frame) => {
     if (callback) callback(state, delta, store.getState().fixed, frame);
-  }, stage.earlyUpdate);
+  }, stage.early);
 }
 
 export function useFixedUpdate(callback: FixedCallback) {
@@ -29,18 +28,18 @@ export function useUpdate(callback: UpdateCallback) {
   const store = useStoreApi();
   useFrame((state, delta, frame) => {
     if (callback) callback(state, delta, store.getState().fixed, frame);
-  }, stage.update);
+  }, stage.default);
 }
 
 export function useLateUpdate(callback: UpdateCallback) {
   const store = useStoreApi();
   useFrame((state, delta, frame) => {
     if (callback) callback(state, delta, store.getState().fixed, frame);
-  }, stage.lateUpdate);
+  }, stage.late);
 }
 
-export function useRenderUpdate(callback: RenderCallback) {
+export function useRenderUpdate(callback: RenderCallback, isRenderFunc?: boolean) {
   const subscribe = useStoreApi().getState().render.subscribe;
   const ref = useRef<RenderCallback>(callback);
-  useLayoutEffect(() => subscribe(ref), [subscribe]);
+  useLayoutEffect(() => subscribe(ref, isRenderFunc), [subscribe]);
 }

@@ -36,11 +36,11 @@ export const createStore = (fixedStep: number, maxSubsteps: number, frameloop?: 
         frameloop: frameloop,
         setFrameloop: (v?: FrameloopOverload) => set(({ render }) => ({ render: { ...render, frameloop: v } })),
         subscribers: [] as RenderSubscription[],
-        subscribe: (ref: RenderSubscription) => {
+        subscribe: (ref: RenderSubscription, isRenderFunc?: boolean) => {
           set(({ render }) => ({
             render: {
               ...render,
-              subscribers: [...render.subscribers, ref],
+              subscribers: isRenderFunc ? [...render.subscribers, ref] : [ref, ...render.subscribers],
             },
           }));
           return () => {

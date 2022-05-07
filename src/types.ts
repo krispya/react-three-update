@@ -18,21 +18,21 @@ export type UpdateProps = {
 export type ConfigureProps = Omit<UpdateProps, 'children'>;
 
 export interface UpdateCallback {
-  (state: RootState, delta: number, fixedState: FixedUpdateState, frame?: THREE.XRFrame): void;
+  (state: RootState, delta: number, fixedState: FixedState, frame?: THREE.XRFrame): void;
 }
 
 export interface FixedCallback {
-  (state: RootState, fixedStep: number, fixedState: FixedUpdateState, frame?: THREE.XRFrame): void;
+  (state: RootState, fixedStep: number, fixedState: FixedState, frame?: THREE.XRFrame): void;
 }
 
 export interface RenderCallback {
-  (state: RootState, delta: number, renderState: RenderState, frame?: THREE.XRFrame): void;
+  (state: RootState, delta: number, fixedState: FixedState, frame?: THREE.XRFrame): void;
 }
 
 export type FixedSubscription = MutableRefObject<FixedCallback>;
 export type RenderSubscription = MutableRefObject<RenderCallback>;
 
-export type FixedUpdateState = {
+export type FixedState = {
   fixedStep: number;
   maxSubsteps: number;
   factor: number;
@@ -43,20 +43,20 @@ export type FixedUpdateState = {
   setMaxSubsteps: (v: number) => void;
 };
 
-export type FixedUpdateSlice = {
-  fixed: FixedUpdateState;
+export type FixedSlice = {
+  fixed: FixedState;
 };
 
 export type RenderState = {
   frameloop?: FrameloopOverload;
   setFrameloop: (v?: FrameloopOverload) => void;
   subscribers: RenderSubscription[];
-  subscribe: (ref: RenderSubscription) => () => void;
+  subscribe: (ref: RenderSubscription, isRenderFunc?: boolean) => () => void;
 };
 
 export type RenderSlice = {
   render: RenderState;
 };
 
-export type UpdateState = FixedUpdateSlice & RenderSlice;
+export type UpdateState = FixedSlice & RenderSlice;
 export type UpdateSelector = StateSelector<UpdateState, Partial<UpdateState>>;

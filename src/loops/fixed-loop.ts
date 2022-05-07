@@ -43,5 +43,5 @@ export function useFixedLoop() {
 
     const factor = accumulator / fixedStep;
     store.setState(({ fixed }) => ({ fixed: { ...fixed, factor: factor, remainder: accumulator } }));
-  }, stage.fixedUpdate);
+  }, stage.fixed);
 }
