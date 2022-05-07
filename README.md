@@ -1,14 +1,16 @@
 # react-three-update
 
+### 🚨 Warning: The API is currently unstable. It works, but there will be breaking changes!
+
 React hooks for Unity-like updates in [react-three-fiber](https://github.com/pmndrs/react-three-fiber).
 
 ```bash
 npm install react-three-update # or yarn add react-three-update
 ```
 
-Unity provides a [strict ordering of events](https://docs.unity3d.com/Manual/ExecutionOrder.html) that many game developers are familiar with. Meanwhile, react-three-fiber only has `useFrame` and lacks a fixed update method. react-three-update solves this by extending `useFrame` to have a strict sequence of update hooks along with a fixed frame loop. The updates are executed in the following order: `useEarlyUpdate`, `useFixedUpdate`, `useUpdate`, `useLateUpdate` and then `useRenderUpdate`.
+Unity provides a [strict ordering of events](https://docs.unity3d.com/Manual/ExecutionOrder.html) that many game developers are familiar with. Meanwhile, react-three-fiber only has `useFrame` with priority that is coupled to the frameloop being in manual mode and lacks a fixed update method. react-three-update solves this by extending `useFrame` to have a strict sequence of update hooks along with a fixed frame loop. The updates are executed in the following order: `useEarlyUpdate`, `useFixedUpdate`, `useUpdate`, `useLateUpdate` and then `useRenderUpdate`. It also overrides the default react-three-fiber priority behavior with `useFrame` such that the priority going into positive numbers no longer puts it into manual mode. This means we are gree to set priorities how we like and configure manual mode separately!
 
-👉 Note: The default `useFrame` priority aligns with the update stage (priority of 0). This means Drei components will generally occur during the update stage along with most other business logic.
+👉 Note: The default `useFrame` priority aligns with the default update stage (priority of 0). This means Drei components will generally occur during the update stage along with most other business logic.
 
 ## How it works
 
@@ -49,10 +51,12 @@ function Game() {
     // be moved by input, physics or other interactions.
   });
 
-  useRenderUpdate((state, delta, renderState) => {
-    // These updates happen right before the node graph is rendered.
-    // You would want to do matrix updates or postprocessing here.
-  });
+  useRenderUpdate((state, delta, fixedState) => {
+    // These updates happen during the rendering stage such as for
+    // postprocessing. You can use an optional second paramter to define
+    // a render function to be run at the end. Combine this with
+    // frameloop={{ manual: true }} on Update.
+  }, isRenderFunc);
 
   return {
     /* children */
@@ -60,9 +64,23 @@ function Game() {
 }
 ```
 
+## More about `useRenderUpdate` and manual mode
+
+R3F no longer relies on the `useFrame` priority to infer when the frameloop goes into manual mode when using react-three-update. This is true even if you are invoking `useFrame` directly. In order to use manual mode, you can set `frameloop` on `Update`. If undefined, the default `Canvas` properties are used instead.
+
+```tsx
+<Update frameloop= { mode?: 'always' | 'demand' | 'never', manual?: boolean } />
+```
+
+You will need to invoke a render function manually, either from R3F or from a prostprocessing library. [See here for more](https://docs.pmnd.rs/react-three-fiber/api/hooks#taking-over-the-render-loop). You can tell react-three-update which invocation of `useRenderUpdate` is meant to be the render function (and therefore called last) with an optional second parameter. When set to true, that function will be run last.
+
+```jsx
+useRenderUpdate(({ gl, scene, camera }) => gl.render(scene, camera), true);
+```
+
 ## More about `useFixedUpdate`
 
-There is a single fixed update loop that any callback passed into `useFixedUpdate` subscribes to, like `useFrame` in react-three-fiber. You can set the `fixedStep` and `maxSubsteps` on `Update`.
+There is a single fixed update loop that any callback passed into `useFixedUpdate` subscribes to. You can set the `fixedStep` and `maxSubsteps` on `Update`.
 
 ```jsx
 <Update fixedStep={1 / 60} maxSubsteps={8}></Update>
@@ -95,7 +113,7 @@ This can be useful for manually implementing interpolation for physics or other 
 
 ## Imperative updates with useUpdateApi
 
-You can update the fixed update state imperatively with `useUpdateApi`. Like `useThree`, the hook is reactive and accepts selectors.
+You can update the fixed update state imperatively with `useUpdateApi`. Like `useThree`, the hook is reactive and accepts selectors. You can access the fixed or render state.
 
 ```jsx
 import { useUpdateApi } from 'react-three-update'
@@ -103,8 +121,10 @@ import { useUpdateApi } from 'react-three-update'
 // For full state.
 function Foo() {
   const state = useUpdateApi()
+  ...
 
 // Or with selector.
 function Foo() {
   const setFixedStep = useUpdateApi((state) => state.fixed.setFixedStep);
+  ...
 ```

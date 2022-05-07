@@ -1,6 +1,6 @@
 {
   "name": "react-three-update",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "⏱ Unity-like updates for react-three-fiber",
   "main": "dist/react-three-update.cjs.js",
   "module": "dist/react-three-update.esm.js",
