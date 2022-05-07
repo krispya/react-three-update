@@ -1,36 +1,34 @@
 import React from 'react';
 import { Provider, createStore, useStoreApi } from './store';
-import { useFixedLoop } from './fixed-loop';
+import { useFixedLoop } from './loops/fixed-loop';
+import { useRenderLoop } from './loops/render-loop';
+import { ConfigureProps, UpdateProps } from './types';
 
-type UpdateProps = {
-  fixedStep?: number;
-  maxSubsteps?: number;
-  children: React.ReactNode;
-};
+export const Update = React.memo(
+  ({ fixedStep = 1 / 50, maxSubsteps = 10, autoRender = true, children }: UpdateProps) => {
+    return (
+      <Provider createStore={createStore(fixedStep, maxSubsteps, autoRender)}>
+        <Configure fixedStep={fixedStep} maxSubsteps={maxSubsteps} autoRender={autoRender} />
+        <Loop>{children}</Loop>
+      </Provider>
+    );
+  },
+);
 
-interface FixedLoopProps {
-  children: React.ReactNode;
-}
-
-export const Update = React.memo(({ fixedStep = 1 / 50, maxSubsteps = 10, children }: UpdateProps) => {
-  return (
-    <Provider createStore={createStore(fixedStep, maxSubsteps)}>
-      <Configure fixedStep={fixedStep} maxSubsteps={maxSubsteps} />
-      <FixedLoop>{children}</FixedLoop>
-    </Provider>
-  );
-});
-
-function Configure({ fixedStep, maxSubsteps }: { fixedStep: number; maxSubsteps: number }) {
+function Configure({ fixedStep, maxSubsteps, autoRender }: ConfigureProps) {
   const store = useStoreApi();
-  store.setState(() => ({
-    fixedStep: fixedStep,
-    maxSubsteps: maxSubsteps,
-  }));
+  const fixed = store.getState().fixed;
+  const render = store.getState().render;
+
+  fixed.setFixedStep(fixedStep!);
+  fixed.setMaxSubsteps(maxSubsteps!);
+  render.setAutoRender(autoRender!);
+
   return null;
 }
 
-function FixedLoop({ children }: FixedLoopProps) {
+function Loop({ children }: { children: React.ReactElement }) {
   useFixedLoop();
-  return <>{children}</>;
+  useRenderLoop();
+  return children;
 }

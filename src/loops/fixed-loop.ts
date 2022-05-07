@@ -1,9 +1,10 @@
 import { useFrame } from '@react-three/fiber';
-import { stage } from './hooks';
-import { FixedUpdateState, Subscription, useStoreApi } from './store';
+import { FixedSubscription } from '../types';
+import { stage } from '../hooks';
+import { useStoreApi } from '../store';
 
-let subscribers: Subscription[];
-let subscription: Subscription;
+let subscribers: FixedSubscription[];
+let subscription: FixedSubscription;
 let fixedStep: number;
 let maxSubsteps: number;
 
@@ -12,10 +13,10 @@ export function useFixedLoop() {
   const store = useStoreApi();
 
   useFrame((state, delta) => {
-    const storeState = store.getState() as FixedUpdateState;
-    fixedStep = storeState.fixedStep;
-    subscribers = storeState.subscribers;
-    maxSubsteps = storeState.maxSubsteps;
+    const fixedState = store.getState().fixed;
+    fixedStep = fixedState.fixedStep;
+    subscribers = fixedState.subscribers;
+    maxSubsteps = fixedState.maxSubsteps;
 
     accumulator += delta;
     const initialTime = performance.now();
@@ -27,7 +28,7 @@ export function useFixedLoop() {
 
       for (let i = 0; i < subscribers.length; i++) {
         subscription = subscribers[i];
-        subscription.current(state, fixedStep, storeState);
+        subscription.current(state, fixedStep, fixedState);
       }
 
       if (performance.now() - initialTime > fixedStep * 1000) {
@@ -41,9 +42,6 @@ export function useFixedLoop() {
     accumulator = accumulator % fixedStep;
 
     const factor = accumulator / fixedStep;
-    store.setState(() => ({
-      factor: factor,
-      remainder: accumulator,
-    }));
+    store.setState(({ fixed }) => ({ fixed: { ...fixed, factor: factor, remainder: accumulator } }));
   }, stage.fixedUpdate);
 }

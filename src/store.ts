@@ -1,57 +1,59 @@
 import createContext from 'zustand/context';
 import { subscribeWithSelector } from 'zustand/middleware';
-import create, { GetState, Mutate, SetState, StateSelector, StoreApi } from 'zustand';
-import { RootState } from '@react-three/fiber';
-import { MutableRefObject } from 'react';
-import * as THREE from 'three';
+import create from 'zustand';
+import { FixedSubscription, RenderSubscription, UpdateSelector, UpdateState } from './types';
 
-export interface UpdateCallback {
-  (state: RootState, delta: number, fixedState: FixedUpdateState, frame?: THREE.XRFrame): void;
-}
-
-export interface FixedCallback {
-  (state: RootState, fixedStep: number, fixedState: FixedUpdateState, frame?: THREE.XRFrame): void;
-}
-
-export type Subscription = MutableRefObject<FixedCallback>;
-
-export type FixedUpdateState = {
-  fixedStep: number;
-  maxSubsteps: number;
-  factor: number;
-  remainder: number;
-  subscribers: Subscription[];
-  subscribe: (ref: Subscription) => () => void;
-  setFixedStep: (v: number) => void;
-  setMaxSubsteps: (v: number) => void;
-};
-
-type FixedUpdateSelector = StateSelector<FixedUpdateState, Partial<FixedUpdateState>>;
-
-export const { Provider, useStore, useStoreApi } = createContext<FixedUpdateState>();
-export const createStore = (fixedStep: number, maxSubsteps: number) => () =>
+export const { Provider, useStore, useStoreApi } = createContext<UpdateState>();
+export const createStore = (fixedStep: number, maxSubsteps: number, autoRender: boolean) => () =>
   create(
-    subscribeWithSelector<FixedUpdateState>((set) => ({
-      fixedStep: fixedStep,
-      maxSubsteps: maxSubsteps,
-      factor: 0,
-      remainder: 0,
-      subscribers: [] as Subscription[],
-      subscribe: (ref: Subscription) => {
-        set((state) => ({
-          ...state,
-          subscribers: [...state.subscribers, ref],
-        }));
-        return () => {
-          set((state) => ({
-            ...state,
-            subscribers: state.subscribers.filter((s) => s !== ref),
+    subscribeWithSelector<UpdateState>((set) => ({
+      // Fixed update state
+      fixed: {
+        fixedStep: fixedStep,
+        maxSubsteps: maxSubsteps,
+        factor: 0,
+        remainder: 0,
+        subscribers: [] as FixedSubscription[],
+        subscribe: (ref: FixedSubscription) => {
+          set(({ fixed }) => ({
+            fixed: { ...fixed, subscribers: [...fixed.subscribers, ref] },
           }));
-        };
+          return () => {
+            set(({ fixed }) => ({
+              fixed: {
+                ...fixed,
+                subscribers: fixed.subscribers.filter((s) => s !== ref),
+              },
+            }));
+          };
+        },
+
+        setFixedStep: (v: number) => set(({ fixed }) => ({ fixed: { ...fixed, fixedStep: v } })),
+        setMaxSubsteps: (v: number) => set(({ fixed }) => ({ fixed: { ...fixed, maxSubsteps: v } })),
       },
-      setFixedStep: (v: number) => set({ fixedStep: v }),
-      setMaxSubsteps: (v: number) => set({ maxSubsteps: v }),
+      // Render update state
+      render: {
+        autoRender: autoRender,
+        setAutoRender: (v: boolean) => set(({ render }) => ({ render: { ...render, autoRender: v } })),
+        subscribers: [] as RenderSubscription[],
+        subscribe: (ref: RenderSubscription) => {
+          set(({ render }) => ({
+            render: {
+              ...render,
+              subscribers: [...render.subscribers, ref],
+            },
+          }));
+          return () => {
+            set(({ render }) => ({
+              render: {
+                ...render,
+                subscribers: render.subscribers.filter((s) => s !== ref),
+              },
+            }));
+          };
+        },
+      },
     })),
   );
 
-export const useFixedUpdateApi = (selector: FixedUpdateSelector) => useStore(selector);
+export const useUpdateApi = (selector: UpdateSelector) => useStore(selector);
