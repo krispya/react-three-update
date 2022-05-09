@@ -39,8 +39,9 @@
     "@types/three": "^0.139.0",
     "@typescript-eslint/eslint-plugin": "^5.22.0",
     "@typescript-eslint/parser": "^5.22.0",
-    "eslint": "^8.14.0",
+    "eslint": "^8.15.0",
     "eslint-plugin-react": "^7.29.4",
+    "eslint-plugin-react-hooks": "^4.5.0",
     "jest": "^27.5.1",
     "rollup": "^2.70.1",
     "typescript": "^4.6.4"
