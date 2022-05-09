@@ -1,7 +1,7 @@
 import createContext from 'zustand/context';
 import { subscribeWithSelector } from 'zustand/middleware';
 import create from 'zustand';
-import { FixedSubscription, RenderOptions, RenderSubscription, UpdateSelector, UpdateState } from './types';
+import { FixedSubscription, RenderCallbackRef, RenderOptions, UpdateSelector, UpdateState } from './types';
 
 export const { Provider, useStore, useStoreApi } = createContext<UpdateState>();
 export const createStore = (fixedStep: number, maxSubsteps: number, render?: RenderOptions) => () =>
@@ -35,19 +35,19 @@ export const createStore = (fixedStep: number, maxSubsteps: number, render?: Ren
       render: {
         render: render,
         setRender: (v?: RenderOptions) => set(({ render }) => ({ render: { ...render, render: v } })),
-        subscribers: [] as RenderSubscription[],
-        subscribe: (ref: RenderSubscription, isRenderFunc?: boolean) => {
+        subscribers: [],
+        subscribe: (ref: RenderCallbackRef, priority: number) => {
           set(({ render }) => ({
             render: {
               ...render,
-              subscribers: isRenderFunc ? [...render.subscribers, ref] : [ref, ...render.subscribers],
+              subscribers: [...render.subscribers, { ref, priority }].sort((a, b) => a.priority - b.priority),
             },
           }));
           return () => {
             set(({ render }) => ({
               render: {
                 ...render,
-                subscribers: render.subscribers.filter((s) => s !== ref),
+                subscribers: render.subscribers.filter((s) => s.ref !== ref),
               },
             }));
           };

@@ -38,8 +38,8 @@ export function useLateUpdate(callback: UpdateCallback) {
   }, stage.late);
 }
 
-export function useRenderUpdate(callback: RenderCallback, isRenderFunc?: boolean) {
+export function useRenderUpdate(callback: RenderCallback, priority?: number) {
   const subscribe = useStoreApi().getState().render.subscribe;
   const ref = useRef<RenderCallback>(callback);
-  useLayoutEffect(() => subscribe(ref, isRenderFunc), [subscribe]);
+  useLayoutEffect(() => subscribe(ref, priority ?? 0), [priority, subscribe]);
 }

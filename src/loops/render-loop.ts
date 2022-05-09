@@ -1,9 +1,9 @@
 import { useFrame } from '@react-three/fiber';
 import { useStoreApi } from '../store';
 import { stage } from '../hooks';
-import { RenderSubscription } from 'types';
+import { Subscription, RenderCallbackRef } from 'types';
 
-let subscription: RenderSubscription;
+let subscription: Subscription<RenderCallbackRef>;
 
 export function useRenderLoop() {
   const store = useStoreApi();
@@ -12,10 +12,11 @@ export function useRenderLoop() {
     const renderState = store.getState().render;
     const fixedState = store.getState().fixed;
     const { subscribers } = renderState;
+    console.log(subscribers);
 
     for (let i = 0; i < subscribers.length; i++) {
       subscription = subscribers[i];
-      subscription.current(state, delta, fixedState);
+      subscription.ref.current(state, delta, fixedState);
     }
   }, stage.render);
 }

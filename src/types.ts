@@ -16,17 +16,21 @@ export type ConfigureProps = Omit<UpdateProps, 'children'>;
 export interface UpdateCallback {
   (state: RootState, delta: number, fixedState: FixedState, frame?: THREE.XRFrame): void;
 }
-
 export interface FixedCallback {
   (state: RootState, fixedStep: number, fixedState: FixedState, frame?: THREE.XRFrame): void;
 }
-
 export interface RenderCallback {
   (state: RootState, delta: number, fixedState: FixedState, frame?: THREE.XRFrame): void;
 }
 
-export type FixedSubscription = MutableRefObject<FixedCallback>;
-export type RenderSubscription = MutableRefObject<RenderCallback>;
+export type FixedCallbackRef = MutableRefObject<FixedCallback>;
+export type RenderCallbackRef = MutableRefObject<RenderCallback>;
+
+export type FixedSubscription = FixedCallbackRef;
+export type Subscription<T> = {
+  ref: T;
+  priority: number;
+};
 
 export type FixedState = {
   fixedStep: number;
@@ -46,8 +50,8 @@ export type FixedSlice = {
 export type RenderState = {
   render?: RenderOptions;
   setRender: (v?: RenderOptions) => void;
-  subscribers: RenderSubscription[];
-  subscribe: (ref: RenderSubscription, isRenderFunc?: boolean) => () => void;
+  subscribers: Subscription<RenderCallbackRef>[];
+  subscribe: (ref: RenderCallbackRef, priority: number) => () => void;
 };
 
 export type RenderSlice = {
