@@ -14,7 +14,7 @@ export enum stage {
 export function useEarlyUpdate(callback: UpdateCallback) {
   const store = useStoreApi();
   useFrame((state, delta, frame) => {
-    if (callback) callback(state, delta, store.getState().fixed, frame);
+    callback(state, delta, store.getState().fixed, frame);
   }, stage.early);
 }
 
@@ -27,14 +27,14 @@ export function useFixedUpdate(callback: FixedCallback) {
 export function useUpdate(callback: UpdateCallback) {
   const store = useStoreApi();
   useFrame((state, delta, frame) => {
-    if (callback) callback(state, delta, store.getState().fixed, frame);
+    callback(state, delta, store.getState().fixed, frame);
   }, stage.default);
 }
 
 export function useLateUpdate(callback: UpdateCallback) {
   const store = useStoreApi();
   useFrame((state, delta, frame) => {
-    if (callback) callback(state, delta, store.getState().fixed, frame);
+    callback(state, delta, store.getState().fixed, frame);
   }, stage.late);
 }
 

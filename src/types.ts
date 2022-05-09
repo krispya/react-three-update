@@ -2,14 +2,10 @@ import { RootState } from '@react-three/fiber';
 import { MutableRefObject } from 'react';
 import { StateSelector } from 'zustand';
 
-export type FrameloopOverload = {
-  mode?: 'always' | 'demand' | 'never';
-  manual?: boolean;
-};
-export type FrameLoop = 'always' | 'demand' | 'never';
+export type RenderOptions = 'auto' | 'demand';
 
 export type UpdateProps = {
-  frameloop?: FrameloopOverload;
+  render?: RenderOptions;
   fixedStep?: number;
   maxSubsteps?: number;
   children: React.ReactElement;
@@ -48,8 +44,8 @@ export type FixedSlice = {
 };
 
 export type RenderState = {
-  frameloop?: FrameloopOverload;
-  setFrameloop: (v?: FrameloopOverload) => void;
+  render?: RenderOptions;
+  setRender: (v?: RenderOptions) => void;
   subscribers: RenderSubscription[];
   subscribe: (ref: RenderSubscription, isRenderFunc?: boolean) => () => void;
 };

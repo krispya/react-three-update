@@ -1,10 +1,10 @@
 import createContext from 'zustand/context';
 import { subscribeWithSelector } from 'zustand/middleware';
 import create from 'zustand';
-import { FixedSubscription, FrameloopOverload, RenderSubscription, UpdateSelector, UpdateState } from './types';
+import { FixedSubscription, RenderOptions, RenderSubscription, UpdateSelector, UpdateState } from './types';
 
 export const { Provider, useStore, useStoreApi } = createContext<UpdateState>();
-export const createStore = (fixedStep: number, maxSubsteps: number, frameloop?: FrameloopOverload) => () =>
+export const createStore = (fixedStep: number, maxSubsteps: number, render?: RenderOptions) => () =>
   create(
     subscribeWithSelector<UpdateState>((set) => ({
       // Fixed update state
@@ -33,8 +33,8 @@ export const createStore = (fixedStep: number, maxSubsteps: number, frameloop?: 
       },
       // Render update state
       render: {
-        frameloop: frameloop,
-        setFrameloop: (v?: FrameloopOverload) => set(({ render }) => ({ render: { ...render, frameloop: v } })),
+        render: render,
+        setRender: (v?: RenderOptions) => set(({ render }) => ({ render: { ...render, render: v } })),
         subscribers: [] as RenderSubscription[],
         subscribe: (ref: RenderSubscription, isRenderFunc?: boolean) => {
           set(({ render }) => ({

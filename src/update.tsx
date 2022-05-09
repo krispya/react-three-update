@@ -5,24 +5,24 @@ import { useRenderLoop } from './loops/render-loop';
 import { ConfigureProps, UpdateProps } from './types';
 import { useStore as useStoreR3F } from '@react-three/fiber';
 
-export const Update = React.memo(({ fixedStep = 1 / 50, maxSubsteps = 10, frameloop, children }: UpdateProps) => {
+export const Update = React.memo(({ fixedStep = 1 / 50, maxSubsteps = 10, render, children }: UpdateProps) => {
   return (
-    <Provider createStore={createStore(fixedStep, maxSubsteps, frameloop)}>
-      <Configure fixedStep={fixedStep} maxSubsteps={maxSubsteps} frameloop={frameloop} />
+    <Provider createStore={createStore(fixedStep, maxSubsteps, render)}>
+      <Configure fixedStep={fixedStep} maxSubsteps={maxSubsteps} render={render} />
       <Loop>{children}</Loop>
       <FrameOverrides />
     </Provider>
   );
 });
 
-function Configure({ fixedStep, maxSubsteps, frameloop }: ConfigureProps) {
+function Configure({ fixedStep, maxSubsteps, render }: ConfigureProps) {
   const storeR3F = useStoreApi();
   const fixedState = storeR3F.getState().fixed;
   const renderState = storeR3F.getState().render;
 
   fixedState.setFixedStep(fixedStep!);
   fixedState.setMaxSubsteps(maxSubsteps!);
-  renderState.setFrameloop(frameloop);
+  renderState.setRender(render);
 
   return null;
 }
@@ -37,29 +37,24 @@ function Loop({ children }: { children: React.ReactElement }) {
 // https://codesandbox.io/s/summer-glitter-3lirnp
 function FrameOverrides() {
   const storeR3F = useStoreR3F();
-  const frameloopR3F = useMemo(() => storeR3F.getState().frameloop, [storeR3F]);
   const store = useStoreApi();
-  const frameloop = useMemo(() => store.getState().render.frameloop, [store]);
+  const render = useMemo(() => store.getState().render.render, [store]);
 
-  const mode = frameloop?.mode ?? frameloopR3F ?? 'always';
-  const manual = frameloop?.manual ?? false;
+  const demand = render === 'demand' ? true : false;
 
-  // Set frameloop mode
-  useLayoutEffect(() => storeR3F.getState().setFrameloop(mode), [storeR3F, mode]);
-
-  // Stop R3F from calling gl.render with manual
+  // Stop R3F from calling gl.render with demand
   useLayoutEffect(() => {
     const overridePriority = (state: any) => {
-      if (state.internal.priority !== manual) {
+      if (state.internal.priority !== demand) {
         state.set(({ internal }: { internal: any }) => ({
-          internal: { ...internal, priority: manual },
+          internal: { ...internal, priority: demand },
         }));
       }
     };
     overridePriority(storeR3F.getState());
 
     return storeR3F.subscribe(overridePriority);
-  }, [storeR3F, manual]);
+  }, [storeR3F, demand]);
 
   return null;
 }
