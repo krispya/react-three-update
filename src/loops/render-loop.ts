@@ -12,7 +12,6 @@ export function useRenderLoop() {
     const renderState = store.getState().render;
     const fixedState = store.getState().fixed;
     const { subscribers } = renderState;
-    console.log(subscribers);
 
     for (let i = 0; i < subscribers.length; i++) {
       subscription = subscribers[i];
