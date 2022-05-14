@@ -1,74 +1,47 @@
 import createContext from 'zustand/context';
-import { subscribeWithSelector } from 'zustand/middleware';
-import create from 'zustand';
-import { FixedSubscription, RenderCallbackRef, RenderOptions, UpdateSelector, UpdateState } from './types';
+import create, { SetState, StateSelector } from 'zustand';
+import { RenderOptions, StageState, UpdateCallbackRef, UpdateState } from './types';
+
+const createStage = (name: string, set: SetState<UpdateState>): StageState<UpdateCallbackRef> => {
+  return {
+    name: name,
+    subscribers: [],
+    subscribe: (ref: UpdateCallbackRef, priority: number, index: number) => {
+      set(({ stages }) => {
+        stages[index].subscribers = [...stages[index].subscribers, { ref, priority }].sort(
+          (a, b) => a.priority - b.priority,
+        );
+        return { stages: stages };
+      });
+    },
+  };
+};
 
 export const { Provider, useStore, useStoreApi } = createContext<UpdateState>();
-export const createStore = (fixedStep: number, maxSubsteps: number, render?: RenderOptions) => () =>
-  create(((set) => ({
-      render: render,
-      setRender: (v?: RenderOptions) => set(({ render }) => ({ render: { ...render, render: v } })),
-      stages: [
-        { name: 'early', priority: 0, subscribers: [], subscribe: () => {} },
-        {
-          name: 'fixed',
-          priority: 10,
-          fixed: { fixedStep: 1 / 50, maxSubsteps: 8, factor: 0, remainder: 0, setFixedStep: () => {}, setMaxSubsteps: () => {} },
-          subscribers: [],
-          subscribe: () => {},
-        },
-        { name: 'default', priority: 20, subscribers: [], subscribe: () => {} },
-        { name: 'late', priority: 30, subscribers: [], subscribe: () => {} },
-        { name: 'render', priority: 40, subscribers: [], subscribe: () => {} },
-      ],
-      addStage: () => {},
-      removeStage: () => {}
+export const createStore = (render: RenderOptions) => () =>
+  create<UpdateState>((set) => ({
+    render: render,
+    setRender: (v: RenderOptions) => set({ render: v }),
+    stages: [
+      createStage('early', set),
+      createStage('default', set),
+      createStage('late', set),
+      createStage('render', set),
+    ],
+    addStage: (stage, index) =>
+      set(({ stages }) => {
+        const name = typeof stage === 'string' ? stage : stage.name;
+        if (index) {
+          stages.splice(index, 0, createStage(name, set));
+        } else {
+          stages.push(createStage(name, set));
+        }
+      }),
+    // removeStage: () => {}
+  }));
 
-    //   // Fixed update state
-    //   fixed: {
-    //     fixedStep: fixedStep,
-    //     maxSubsteps: maxSubsteps,
-    //     factor: 0,
-    //     remainder: 0,
-    //     subscribers: [] as FixedSubscription[],
-    //     subscribe: (ref: FixedSubscription) => {
-    //       set(({ fixed }) => ({
-    //         fixed: { ...fixed, subscribers: [...fixed.subscribers, ref] },
-    //       }));
-    //       return () => {
-    //         set(({ fixed }) => ({
-    //           fixed: {
-    //             ...fixed,
-    //             subscribers: fixed.subscribers.filter((s) => s !== ref),
-    //           },
-    //         }));
-    //       };
-    //     },
-
-    //     setFixedStep: (v: number) => set(({ fixed }) => ({ fixed: { ...fixed, fixedStep: v } })),
-    //     setMaxSubsteps: (v: number) => set(({ fixed }) => ({ fixed: { ...fixed, maxSubsteps: v } })),
-    //   },
-    //   // Render update state
-    //   renderStage: {
-    //     subscribers: [],
-    //     subscribe: (ref: RenderCallbackRef, priority: number) => {
-    //       set(({ render }) => ({
-    //         render: {
-    //           ...render,
-    //           subscribers: [...render.subscribers, { ref, priority }].sort((a, b) => a.priority - b.priority),
-    //         },
-    //       }));
-    //       return () => {
-    //         set(({ render }) => ({
-    //           render: {
-    //             ...render,
-    //             subscribers: render.subscribers.filter((s) => s.ref !== ref),
-    //           },
-    //         }));
-    //       };
-    //     },
-    //   },
-    // })),
-  );
-
-export const useUpdateApi = (selector: UpdateSelector) => useStore(selector);
+export function useUpdateApi<T = UpdateState>(
+  selector: StateSelector<UpdateState, T> = (state) => state as unknown as T,
+) {
+  return useStore(selector);
+}

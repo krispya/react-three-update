@@ -1,35 +1,32 @@
-import React, { useLayoutEffect, useMemo } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo } from 'react';
 import { Provider, createStore, useStoreApi } from './store';
-import { useFixedLoop } from './loops/fixed-loop';
-import { useRenderLoop } from './loops/render-loop';
+// import { useFixedLoop } from './loops/fixed-loop';
 import { ConfigureProps, UpdateProps } from './types';
 import { useStore as useStoreR3F } from '@react-three/fiber';
+import { useLoop } from './loops/loop';
 
-export const Update = React.memo(({ fixedStep = 1 / 50, maxSubsteps = 10, render, children }: UpdateProps) => {
+export const Update = React.memo(({ render = 'auto', children }: UpdateProps) => {
   return (
-    <Provider createStore={createStore(fixedStep, maxSubsteps, render)}>
-      <Configure fixedStep={fixedStep} maxSubsteps={maxSubsteps} render={render} />
+    <Provider createStore={createStore(render)}>
+      <Configure render={render} />
       <Loop>{children}</Loop>
       <FrameOverrides />
     </Provider>
   );
 });
 
-function Configure({ fixedStep, maxSubsteps, render }: ConfigureProps) {
-  const storeR3F = useStoreApi();
-  const fixedState = storeR3F.getState().fixed;
-  const renderState = storeR3F.getState().render;
+function Configure({ render = 'auto' }: ConfigureProps) {
+  const store = useStoreApi();
+  const setRender = store.getState().setRender;
 
-  fixedState.setFixedStep(fixedStep!);
-  fixedState.setMaxSubsteps(maxSubsteps!);
-  renderState.setRender(render);
+  useEffect(() => setRender(render), [render, setRender]);
 
   return null;
 }
 
 function Loop({ children }: { children: React.ReactElement }) {
-  useFixedLoop();
-  useRenderLoop();
+  // useFixedLoop();
+  useLoop();
   return children;
 }
 
@@ -38,11 +35,11 @@ function Loop({ children }: { children: React.ReactElement }) {
 function FrameOverrides() {
   const storeR3F = useStoreR3F();
   const store = useStoreApi();
-  const render = useMemo(() => store.getState().render.render, [store]);
+  const render = useMemo(() => store.getState().render, [store]);
 
-  const demand = render === 'demand' ? true : false;
+  const demand = render === 'manual' ? true : false;
 
-  // Stop R3F from calling gl.render with demand
+  // Stop R3F from calling gl.render with manual
   useLayoutEffect(() => {
     const overridePriority = (state: any) => {
       if (state.internal.priority !== demand) {

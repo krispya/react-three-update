@@ -1,45 +1,33 @@
-import { useFrame } from '@react-three/fiber';
 import { useLayoutEffect, useRef } from 'react';
-import { FixedCallback, RenderCallback, UpdateCallback } from './types';
+import { FixedCallback, UpdateCallback } from './types';
 import { useStoreApi } from './store';
 
-export enum stage {
-  early = -200,
-  fixed = -100,
-  default = 0,
-  late = 100,
-  render = 200,
+export function useSubscribeUpdate(callback: UpdateCallback, name: string, priority?: number) {
+  const store = useStoreApi().getState();
+  const index = store.stages.findIndex((stage) => stage.name === name);
+  const subscribe = store.stages[index].subscribe;
+  const ref = useRef<UpdateCallback>(callback);
+  useLayoutEffect(() => subscribe(ref, priority ?? 0, index), [index, priority, subscribe]);
 }
 
-export function useEarlyUpdate(callback: UpdateCallback) {
-  const store = useStoreApi();
-  useFrame((state, delta, frame) => {
-    callback(state, delta, store.getState().fixed, frame);
-  }, stage.early);
+export function useEarlyUpdate(callback: UpdateCallback, priority?: number) {
+  useSubscribeUpdate(callback, 'early', priority);
 }
 
 export function useFixedUpdate(callback: FixedCallback) {
-  const subscribe = useStoreApi().getState().fixed.subscribe;
-  const ref = useRef<FixedCallback>(callback);
-  useLayoutEffect(() => subscribe(ref), [subscribe]);
+  // const subscribe = useStoreApi().getState().fixed.subscribe;
+  // const ref = useRef<FixedCallback>(callback);
+  // useLayoutEffect(() => subscribe(ref), [subscribe]);
 }
 
-export function useUpdate(callback: UpdateCallback) {
-  const store = useStoreApi();
-  useFrame((state, delta, frame) => {
-    callback(state, delta, store.getState().fixed, frame);
-  }, stage.default);
+export function useUpdate(callback: UpdateCallback, priority?: number) {
+  useSubscribeUpdate(callback, 'default', priority);
 }
 
-export function useLateUpdate(callback: UpdateCallback) {
-  const store = useStoreApi();
-  useFrame((state, delta, frame) => {
-    callback(state, delta, store.getState().fixed, frame);
-  }, stage.late);
+export function useLateUpdate(callback: UpdateCallback, priority?: number) {
+  useSubscribeUpdate(callback, 'late', priority);
 }
 
-export function useRenderUpdate(callback: RenderCallback, priority?: number) {
-  const subscribe = useStoreApi().getState().render.subscribe;
-  const ref = useRef<RenderCallback>(callback);
-  useLayoutEffect(() => subscribe(ref, priority ?? 0), [priority, subscribe]);
+export function useRenderUpdate(callback: any, priority?: number) {
+  useSubscribeUpdate(callback, 'render', priority);
 }
