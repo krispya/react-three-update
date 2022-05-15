@@ -45,6 +45,7 @@ export type UpdateState = {
   render: RenderOptions;
   setRender: (v: RenderOptions) => void;
   stages: StageState<UpdateCallbackRef>[];
-  addStage: (name: string, index?: number) => void;
-  addFixedStage: (stage: string | FixedStageOptions, index?: number) => void;
+  addStage: (name: string, index?: number) => () => void;
+  addFixedStage: (stage: string | FixedStageOptions, index?: number) => () => void;
+  removeStage: (name: string) => void;
 };

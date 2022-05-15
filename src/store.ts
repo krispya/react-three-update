@@ -41,7 +41,7 @@ export class FixedStage extends Stage {
 
 export const { Provider, useStore, useStoreApi } = createContext<UpdateState>();
 export const createStore = (render: RenderOptions) => () =>
-  create<UpdateState>((set) => ({
+  create<UpdateState>((set, get) => ({
     render: render,
     setRender: (v: RenderOptions) => set({ render: v }),
     stages: [
@@ -51,23 +51,32 @@ export const createStore = (render: RenderOptions) => () =>
       new Stage('late', set),
       new Stage('render', set),
     ],
-    addStage: (name, index) =>
+    addStage: (name, index) => {
       set(({ stages }) => {
         if (index) {
           stages.splice(index, 0, new Stage(name, set));
         } else {
           stages.push(new Stage(name, set));
         }
-      }),
-    addFixedStage: (stage, index) =>
+      });
+      return () => get().removeStage(name);
+    },
+    addFixedStage: (stage, index) => {
       set(({ stages }) => {
         if (index) {
           stages.splice(index, 0, new FixedStage(stage, set));
         } else {
           stages.push(new FixedStage(stage, set));
         }
+      });
+      const name = typeof stage === 'string' ? stage : stage.name;
+      return () => get().removeStage(name);
+    },
+    removeStage: (name) =>
+      set(({ stages }) => {
+        const index = stages.findIndex((stage) => stage.name === name);
+        stages.splice(index, 1);
       }),
-    // removeStage: () => {}
   }));
 
 export function useUpdateApi<T = UpdateState>(
