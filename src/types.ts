@@ -2,11 +2,11 @@ import { RootState } from '@react-three/fiber';
 import { MutableRefObject } from 'react';
 
 export type RenderOptions = 'auto' | 'manual';
-export type StageTypes = 'standard' | 'fixed';
 
-export type StageOptions = {
+export type FixedStageOptions = {
   name: string;
-  type: StageTypes;
+  fixedStep?: number;
+  maxSubsteps?: number;
 };
 
 export type UpdateProps = {
@@ -45,5 +45,6 @@ export type UpdateState = {
   render: RenderOptions;
   setRender: (v: RenderOptions) => void;
   stages: StageState<UpdateCallbackRef>[];
-  addStage: (stage: string | StageOptions, index?: number) => void;
+  addStage: (name: string, index?: number) => void;
+  addFixedStage: (stage: string | FixedStageOptions, index?: number) => void;
 };

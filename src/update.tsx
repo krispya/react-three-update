@@ -1,6 +1,5 @@
 import React, { useEffect, useLayoutEffect, useMemo } from 'react';
 import { Provider, createStore, useStoreApi } from './store';
-// import { useFixedLoop } from './loops/fixed-loop';
 import { ConfigureProps, UpdateProps } from './types';
 import { useStore as useStoreR3F } from '@react-three/fiber';
 import { useLoop } from './loops/loop';
@@ -25,7 +24,6 @@ function Configure({ render = 'auto' }: ConfigureProps) {
 }
 
 function Loop({ children }: { children: React.ReactElement }) {
-  // useFixedLoop();
   useLoop();
   return children;
 }

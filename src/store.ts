@@ -1,21 +1,43 @@
 import createContext from 'zustand/context';
 import create, { SetState, StateSelector } from 'zustand';
-import { RenderOptions, StageState, UpdateCallbackRef, UpdateState } from './types';
+import { FixedStageOptions, RenderOptions, Subscription, UpdateCallbackRef, UpdateState } from './types';
 
-const createStage = (name: string, set: SetState<UpdateState>): StageState<UpdateCallbackRef> => {
-  return {
-    name: name,
-    subscribers: [],
-    subscribe: (ref: UpdateCallbackRef, priority: number, index: number) => {
+export class Stage {
+  name: string;
+  subscribers: Subscription<UpdateCallbackRef>[];
+  subscribe: (ref: UpdateCallbackRef, priority: number, index: number) => void;
+
+  constructor(name: string, set: SetState<UpdateState>) {
+    this.name = name;
+    this.subscribers = [];
+    this.subscribe = (ref: UpdateCallbackRef, priority: number, index: number) => {
       set(({ stages }) => {
         stages[index].subscribers = [...stages[index].subscribers, { ref, priority }].sort(
           (a, b) => a.priority - b.priority,
         );
         return { stages: stages };
       });
-    },
-  };
-};
+      return () => {
+        set(({ stages }) => {
+          stages[index].subscribers = stages[index].subscribers.filter((s) => s.ref !== ref);
+          return { stages: stages };
+        });
+      };
+    };
+  }
+}
+
+export class FixedStage extends Stage {
+  fixedStep: number;
+  maxSubsteps: number;
+
+  constructor(stage: string | FixedStageOptions, set: SetState<UpdateState>) {
+    const _stage = typeof stage === 'string' ? ({ name: stage } as FixedStageOptions) : stage;
+    super(_stage.name, set);
+    this.fixedStep = _stage.fixedStep ?? 1 / 50;
+    this.maxSubsteps = _stage.maxSubsteps ?? 10;
+  }
+}
 
 export const { Provider, useStore, useStoreApi } = createContext<UpdateState>();
 export const createStore = (render: RenderOptions) => () =>
@@ -23,18 +45,26 @@ export const createStore = (render: RenderOptions) => () =>
     render: render,
     setRender: (v: RenderOptions) => set({ render: v }),
     stages: [
-      createStage('early', set),
-      createStage('default', set),
-      createStage('late', set),
-      createStage('render', set),
+      new Stage('early', set),
+      new FixedStage('fixed', set),
+      new Stage('default', set),
+      new Stage('late', set),
+      new Stage('render', set),
     ],
-    addStage: (stage, index) =>
+    addStage: (name, index) =>
       set(({ stages }) => {
-        const name = typeof stage === 'string' ? stage : stage.name;
         if (index) {
-          stages.splice(index, 0, createStage(name, set));
+          stages.splice(index, 0, new Stage(name, set));
         } else {
-          stages.push(createStage(name, set));
+          stages.push(new Stage(name, set));
+        }
+      }),
+    addFixedStage: (stage, index) =>
+      set(({ stages }) => {
+        if (index) {
+          stages.splice(index, 0, new FixedStage(stage, set));
+        } else {
+          stages.push(new FixedStage(stage, set));
         }
       }),
     // removeStage: () => {}
