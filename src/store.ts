@@ -15,12 +15,12 @@ export class Stage {
         stages[index].subscribers = [...stages[index].subscribers, { ref, priority }].sort(
           (a, b) => a.priority - b.priority,
         );
-        return { stages: stages };
+        return { stages: [...stages] };
       });
       return () => {
         set(({ stages }) => {
           stages[index].subscribers = stages[index].subscribers.filter((s) => s.ref !== ref);
-          return { stages: stages };
+          return { stages: [...stages] };
         });
       };
     };
@@ -53,21 +53,17 @@ export const createStore = (render: RenderOptions) => () =>
     ],
     addStage: (name, index) => {
       set(({ stages }) => {
-        if (index) {
-          stages.splice(index, 0, new Stage(name, set));
-        } else {
-          stages.push(new Stage(name, set));
-        }
+        const newStage = new Stage(name, set);
+        if (!index) index = stages.length;
+        return { stages: [...stages.slice(0, index), newStage, ...stages.slice(index)] };
       });
       return () => get().removeStage(name);
     },
     addFixedStage: (stage, index) => {
       set(({ stages }) => {
-        if (index) {
-          stages.splice(index, 0, new FixedStage(stage, set));
-        } else {
-          stages.push(new FixedStage(stage, set));
-        }
+        const newStage = new FixedStage(stage, set);
+        if (!index) index = stages.length;
+        return { stages: [...stages.slice(0, index), newStage, ...stages.slice(index)] };
       });
       const name = typeof stage === 'string' ? stage : stage.name;
       return () => get().removeStage(name);
@@ -75,7 +71,7 @@ export const createStore = (render: RenderOptions) => () =>
     removeStage: (name) =>
       set(({ stages }) => {
         const index = stages.findIndex((stage) => stage.name === name);
-        stages.splice(index, 1);
+        return { stages: [...stages.splice(index, 1)] };
       }),
   }));
 
