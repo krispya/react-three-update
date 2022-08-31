@@ -1,6 +1,6 @@
 # react-three-update
 
-### 🚨 Warning: The API is currently unstable. It works, but there will be breaking changes!
+### 🚨 Warning: This library has been merged into [react-three-fiber v9](https://github.com/pmndrs/react-three-fiber/tree/v9) and is actively developed there. This repository will remain here only for reference.
 
 React hooks for Unity-like updates in [react-three-fiber](https://github.com/pmndrs/react-three-fiber).
 
